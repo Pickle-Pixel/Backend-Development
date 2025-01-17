@@ -7,10 +7,12 @@ router = APIRouter()
 model = load_model()
 
 @router.post("/detect")
-async def detect(file: UploadFile = File(...)):  # `File(...)` is required here
+async def detect(file: UploadFile = File(...)):
     try:
-        img = Image.open(file.file)  # Open the uploaded file as an image
-        detections = run_detection(model, img)
+        # Open the uploaded image
+        img = Image.open(file.file).convert("RGB")
+        detections = run_detection(model, img)  # Run detection
         return {"detections": detections}
     except Exception as e:
+        print(f"Error in /detect: {e}")
         return {"error": str(e)}

@@ -1,10 +1,19 @@
-from PIL import Image #Python Image Library for image manipulation
-
 def run_detection(model, image):
-    #run the model on the image
-    results = model(image)
-    #convert results into a dict to be sent back to user easier
-    return results.pandas().xyxy[0].to_dict(orient="records")
+    try:
+        # Run the YOLOv8 model
+        results = model.predict(source=image, save=False)
+        print("Raw YOLOv8 results:", results)  # Debug log
 
+        # Parse results
+        detections = []
+        for box in results[0].boxes:  # Iterate over detected boxes
+            detections.append({
+                "label": model.names[int(box.cls)],  # Class name
+                "confidence": float(box.conf),      # Confidence score
+                "box": [float(x) for x in box.xyxy[0]]  # Bounding box coordinates
+            })
 
-
+        return detections
+    except Exception as e:
+        print(f"Error during detection: {e}")
+        raise
